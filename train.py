@@ -5,6 +5,9 @@ import torch
 import torch.nn as nn
 from sklearn import metrics, preprocessing
 import numpy as np
+#Clase en la que se cargan todos los datos 
+#Len devuelve la cantidad de productos que se tienen
+#Item devuelde los productos 
 class MercadoDataset:
     def __init__(self,prod_id,users, prod_unit_price, rating):
         self.prod_id=prod_id
@@ -27,7 +30,11 @@ class MercadoDataset:
             "prod_unit_prices": torch.tensor(prod_unit_price, dtype=torch.float),
             "ratings": torch.tensor(rating, dtype=torch.int),
         }
-
+#RecSysModel modelo
+#Red neuronal de 32 neuronas 
+#Linear Entrada de 64 neuronas y salida de una neurona 
+#Step scheduler after toma por epocas
+#Adam capa de optimizacion(asegura que el error llega al minimo en menos timepo)
 class RecSysModel(tez.model):
     def __init__(self, num_prod_ids, num_userss):
         self.num_prod_embed = nn.Embedding(num_prod_ids, 32)
@@ -59,8 +66,7 @@ class RecSysModel(tez.model):
         cal_metrics =self.Monitor_de_Metricas(output, ratings.view(-1,1))
         return output, loss, cal_metrics
 
-
-
+#
 def train():
     df = pd.read_csv("../input/products.csv")
     #prod_id	users	prod_name_long	prod_brand	tags	 prod_unit_price 	Rating
@@ -85,7 +91,7 @@ def train():
         prod_unit_price=df_valid.prod_unit_price.values,
         rating=df_valid.rating.values
     )
-
+#tamaño de lote train_bs
     model =RecSysModel(num_prod_ids=len(lbl_prod_id.classes_),num_userss=len(lbl_user.classes_))
     model.fit(train_dataset, valid_dataset, train_bs=1024, valid_bs=1024, fp16=True)
 
